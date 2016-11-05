@@ -3,26 +3,21 @@ package aim.hanoi;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.Maps;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import lombok.SneakyThrows;
-import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.util.Map;
 import java.util.Set;
 
+@Data
 @Log4j2
-@Getter
-@Setter
-@RequiredArgsConstructor
-@ToString
 public class Towers {
 
     private Tower tower1 = new Tower();
+
     private Tower tower2 = new Tower();
+
     private Tower tower3 = new Tower();
 
     private final int numberOfDisks;
@@ -44,18 +39,6 @@ public class Towers {
         return clone;
     }
 
-    @Override
-    public boolean equals(Object o){
-
-        Towers other = (Towers) o;
-
-        return new EqualsBuilder()
-                .append(tower1, other.tower1)
-                .append(tower2, other.tower2)
-                .append(tower3, other.tower3)
-                .isEquals();
-    }
-
     public static Map<Towers, Set<Towers>> generateGraph(int numberOfDisks) {
         Towers towers = new Towers(numberOfDisks);
         towers.initState();
@@ -70,7 +53,9 @@ public class Towers {
         if (!states.containsKey(towers)) {
             Set<Towers> possibleSwitchStates = getPossibleSwitchStates(towers);
             states.put(towers, possibleSwitchStates);
-            possibleSwitchStates.forEach(possibleSwitchState -> addStates(states, possibleSwitchState));
+            possibleSwitchStates.stream()
+                    .filter(possibleSwitchStatus -> !states.containsKey(possibleSwitchStatus))
+                    .forEach(possibleSwitchState -> addStates(states, possibleSwitchState));
         }
     }
 
