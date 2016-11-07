@@ -3,28 +3,58 @@ package aim.hanoi;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.Maps;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.Map;
 import java.util.Set;
 
-@Data
 @Log4j2
+@RequiredArgsConstructor
+@EqualsAndHashCode(exclude = {"numberOfDisks"})
+@ToString(exclude = {"numberOfDisks"})
 public class Towers {
 
+    @Getter
+    @Setter
     private Tower tower1 = new Tower();
 
+    @Getter
+    @Setter
     private Tower tower2 = new Tower();
 
+    @Getter
+    @Setter
     private Tower tower3 = new Tower();
 
     private final int numberOfDisks;
 
+    public static Towers initState(int numberOfDisks){
+        Towers towers = new Towers(numberOfDisks);
+        towers.initState();
+        return towers;
+    }
+
+    public static Towers endState(int numberOfDisks){
+        Towers towers = new Towers(numberOfDisks);
+        towers.endState();
+        return towers;
+    }
+
     private void initState() {
         for (int i = numberOfDisks; i >= 1; i--) {
             tower1.push(i);
+        }
+    }
+
+    private void endState(){
+        for (int i = numberOfDisks; i >= 1; i--) {
+            tower3.push(i);
         }
     }
 
@@ -39,7 +69,7 @@ public class Towers {
         return clone;
     }
 
-    public static Map<Towers, Set<Towers>> generateGraph(int numberOfDisks) {
+    public static Map<Towers, Set<Towers>> generateGraphMap(int numberOfDisks) {
         Towers towers = new Towers(numberOfDisks);
         towers.initState();
 
@@ -57,6 +87,10 @@ public class Towers {
                     .filter(possibleSwitchStatus -> !states.containsKey(possibleSwitchStatus))
                     .forEach(possibleSwitchState -> addStates(states, possibleSwitchState));
         }
+    }
+
+    public Set<Towers> getPossibleSwitchStates() {
+        return getPossibleSwitchStates(this);
     }
 
     @SneakyThrows
@@ -107,7 +141,7 @@ public class Towers {
     }
 
     public static void main(String[] args) {
-        Map<Towers, Set<Towers>> towersSetMap = Towers.generateGraph(6);
+        Map<Towers, Set<Towers>> towersSetMap = Towers.generateGraphMap(6);
 
         log.error(towersSetMap);
     }
