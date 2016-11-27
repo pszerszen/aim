@@ -94,7 +94,8 @@ public class Hanoi {
         fScore.put(init, init.getGScore());
 
         while (CollectionUtils.isNotEmpty(openSet)) {
-            @SuppressWarnings("OptionalGetWithoutIsPresent") Towers current = openSet.stream().min(Towers.F_SCORE_COMPARATOR).get();
+            @SuppressWarnings("OptionalGetWithoutIsPresent")
+            Towers current = openSet.stream().min(Towers.F_SCORE_COMPARATOR).get();
             if (current.equals(end)) {
                 return reconstructPath(cameFrom, current);
             }

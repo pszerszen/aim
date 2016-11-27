@@ -7,9 +7,10 @@ import lombok.SneakyThrows;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("WeakerAccess")
 public class TowersUtils {
 
-    public static Map<Towers, Set<Towers>> generateGraphMap(int numberOfDisks) {
+    static Map<Towers, Set<Towers>> generateGraphMap(int numberOfDisks) {
         Map<Towers, Set<Towers>> states = Maps.newHashMap();
         addStates(states, Towers.initState(numberOfDisks));
 

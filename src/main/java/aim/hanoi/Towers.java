@@ -10,7 +10,6 @@ import lombok.extern.log4j.Log4j2;
 
 import java.math.BigInteger;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.Set;
 
 @Log4j2
@@ -20,12 +19,12 @@ import java.util.Set;
 public class Towers {
 
     static Comparator<Towers> F_SCORE_COMPARATOR = Comparator.comparing(Towers::getFScore);
-    static Comparator<Towers> G_SCORE_COMPARATOR = Comparator.comparing(Towers::getGScore);
 
     @Getter
     @Setter
     private Tower tower1 = new Tower();
 
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     @Getter
     @Setter
     private Tower tower2 = new Tower();
@@ -60,6 +59,7 @@ public class Towers {
         }
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     protected Towers clone() throws CloneNotSupportedException {
         Towers clone = new Towers(numberOfDisks);
@@ -91,11 +91,5 @@ public class Towers {
 
     Set<Towers> getPossibleSwitchStates() {
         return TowersUtils.getPossibleSwitchStates(this);
-    }
-
-    public static void main(String[] args) {
-        Map<Towers, Set<Towers>> towersSetMap = TowersUtils.generateGraphMap(6);
-
-        log.error(towersSetMap);
     }
 }

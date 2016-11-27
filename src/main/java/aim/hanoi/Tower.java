@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 public class Tower extends Stack<Integer> {
     private static final long serialVersionUID = -6294097724154676304L;
 
-    public boolean canPush(Integer integer) {
+    boolean canPush(Integer integer) {
         return isEmpty() || peek() > integer;
     }
 
