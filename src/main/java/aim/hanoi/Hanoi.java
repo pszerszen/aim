@@ -103,19 +103,19 @@ public class Hanoi {
             openSet.remove(current);
             closedSet.add(current);
 
-            for (Towers neightbor : current.getPossibleSwitchStates()) {
-                if (closedSet.contains(neightbor)) {
+            for (Towers neighbor : current.getPossibleSwitchStates()) {
+                if (closedSet.contains(neighbor)) {
                     continue;
                 }
-                int tentactiveGScore = current.getGScore() + 1;
-                if (!openSet.contains(neightbor)) {
-                    openSet.add(neightbor);
-                } else if (tentactiveGScore >= neightbor.getGScore()) {
+                int tentativeGScore = current.getGScore() + 1;
+                if (!openSet.contains(neighbor)) {
+                    openSet.add(neighbor);
+                } else if (tentativeGScore >= neighbor.getGScore()) {
                     continue;
                 }
-                cameFrom.put(neightbor, current);
-                gScore.put(neightbor, tentactiveGScore);
-                fScore.put(neightbor, neightbor.getFScore());
+                cameFrom.put(neighbor, current);
+                gScore.put(neighbor, tentativeGScore);
+                fScore.put(neighbor, neighbor.getFScore());
             }
         }
         return Collections.emptyList(); // unreachable
@@ -134,6 +134,7 @@ public class Hanoi {
     @SuppressWarnings("SimplifyStreamApiCallChains")
     public static void main(String[] args) {
         int numberOfDisks = 3;
+        log.error("Number of disks: {}", numberOfDisks);
         List<Towers> dfsPath = iterativeDfs(numberOfDisks);
         List<Towers> bfsPath = iterativeBfs(numberOfDisks);
         List<Towers> aStarPath = aStar(numberOfDisks);
