@@ -1,24 +1,26 @@
 package aim.hanoi;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
-import com.google.common.collect.Maps;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 
+import java.math.BigInteger;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
 @Log4j2
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode(exclude = {"numberOfDisks"})
 @ToString(exclude = {"numberOfDisks"})
 public class Towers {
+
+    static Comparator<Towers> F_SCORE_COMPARATOR = Comparator.comparing(Towers::getFScore);
+    static Comparator<Towers> G_SCORE_COMPARATOR = Comparator.comparing(Towers::getGScore);
 
     @Getter
     @Setter
@@ -34,13 +36,13 @@ public class Towers {
 
     private final int numberOfDisks;
 
-    public static Towers initState(int numberOfDisks){
+    static Towers initState(int numberOfDisks){
         Towers towers = new Towers(numberOfDisks);
         towers.initState();
         return towers;
     }
 
-    public static Towers endState(int numberOfDisks){
+    static Towers endState(int numberOfDisks){
         Towers towers = new Towers(numberOfDisks);
         towers.endState();
         return towers;
@@ -69,79 +71,30 @@ public class Towers {
         return clone;
     }
 
-    public static Map<Towers, Set<Towers>> generateGraphMap(int numberOfDisks) {
-        Towers towers = new Towers(numberOfDisks);
-        towers.initState();
+    int getFScore(){
+        BigInteger fScore = BigInteger.ZERO;
 
-        Map<Towers, Set<Towers>> states = Maps.newHashMap();
-        addStates(states, towers);
+        tower1.forEach(disk -> fScore.add(BigInteger.valueOf(disk * 2)));
+        tower2.forEach(disk -> fScore.add(BigInteger.valueOf(disk)));
 
-        return states;
+        return fScore.intValue();
     }
 
-    private static void addStates(Map<Towers, Set<Towers>> states, Towers towers) {
-        if (!states.containsKey(towers)) {
-            Set<Towers> possibleSwitchStates = getPossibleSwitchStates(towers);
-            states.put(towers, possibleSwitchStates);
-            possibleSwitchStates.stream()
-                    .filter(possibleSwitchStatus -> !states.containsKey(possibleSwitchStatus))
-                    .forEach(possibleSwitchState -> addStates(states, possibleSwitchState));
-        }
+    int getGScore(){
+        BigInteger fScore = BigInteger.ZERO;
+
+        tower2.forEach(disk -> fScore.add(BigInteger.valueOf(disk)));
+        tower3.forEach(disk -> fScore.add(BigInteger.valueOf(disk * 2)));
+
+        return fScore.intValue();
     }
 
-    public Set<Towers> getPossibleSwitchStates() {
-        return getPossibleSwitchStates(this);
-    }
-
-    @SneakyThrows
-    private static Set<Towers> getPossibleSwitchStates(Towers towers) {
-        Builder<Towers> statesBuilder = ImmutableSet.builder();
-
-        if (canMoveDisk(towers.getTower1(), towers.getTower2())) {
-            Towers newState = towers.clone();
-            newState.getTower2().push(newState.getTower1().pop());
-            statesBuilder.add(newState);
-        }
-
-        if (canMoveDisk(towers.getTower1(), towers.getTower3())) {
-            Towers newState = towers.clone();
-            newState.getTower3().push(newState.getTower1().pop());
-            statesBuilder.add(newState);
-        }
-
-        if (canMoveDisk(towers.getTower2(), towers.getTower1())) {
-            Towers newState = towers.clone();
-            newState.getTower1().push(newState.getTower2().pop());
-            statesBuilder.add(newState);
-        }
-
-        if (canMoveDisk(towers.getTower2(), towers.getTower3())) {
-            Towers newState = towers.clone();
-            newState.getTower3().push(newState.getTower2().pop());
-            statesBuilder.add(newState);
-        }
-
-        if (canMoveDisk(towers.getTower3(), towers.getTower1())) {
-            Towers newState = towers.clone();
-            newState.getTower1().push(newState.getTower3().pop());
-            statesBuilder.add(newState);
-        }
-
-        if (canMoveDisk(towers.getTower3(), towers.getTower2())) {
-            Towers newState = towers.clone();
-            newState.getTower2().push(newState.getTower3().pop());
-            statesBuilder.add(newState);
-        }
-
-        return statesBuilder.build();
-    }
-
-    private static boolean canMoveDisk(Tower from, Tower to) {
-        return !from.isEmpty() && to.canPush(from.peek());
+    Set<Towers> getPossibleSwitchStates() {
+        return TowersUtils.getPossibleSwitchStates(this);
     }
 
     public static void main(String[] args) {
-        Map<Towers, Set<Towers>> towersSetMap = Towers.generateGraphMap(6);
+        Map<Towers, Set<Towers>> towersSetMap = TowersUtils.generateGraphMap(6);
 
         log.error(towersSetMap);
     }
