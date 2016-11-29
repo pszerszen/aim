@@ -1,148 +1,85 @@
 package aim.hanoi;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
-import java.util.Collections;
-import java.util.LinkedList;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.Stack;
-import java.util.stream.Collectors;
 
 @Log4j2
 public class Hanoi {
 
-    private static List<Towers> iterativeBfs(int numberOfDisks) {
-        Queue<Towers> queue = new LinkedList<>();
-        Towers rootNode = Towers.initState(numberOfDisks);
-        Towers end = Towers.endState(numberOfDisks);
+    private static final String BASE_FILE_PATH = String.join(File.separator,
+            System.getProperty("user.home"),
+            "workspace", "aim", "src", "main", "resources", "aim", "hanoi")
+            .concat(File.separator);
 
-        queue.add(rootNode);
-        Set<Towers> visitedStates = Sets.newHashSet(rootNode);
-        List<Towers> totalPath = Lists.newArrayList(rootNode);
+    private static final String DISKS = "d";
 
-        while (!queue.isEmpty()) {
-            Towers towers = queue.remove();
-            Set<Towers> unvisitedChildNodes = towers.getPossibleSwitchStates().stream()
-                    .filter(adjacent -> !visitedStates.contains(adjacent))
-                    .collect(Collectors.toSet());
-            if (!unvisitedChildNodes.isEmpty()) {
-                for (Towers child : unvisitedChildNodes) {
-                    visitedStates.add(child);
-                    totalPath.add(child);
-                    queue.add(child);
-                }
-            }
-            if (unvisitedChildNodes.contains(end)) {
-                break;
-            }
-        }
-        return totalPath;
-    }
+    private static final String HELP = "h";
 
-    private static List<Towers> iterativeDfs(int numberOfDisks) {
-        Stack<Towers> towersStack = new Stack<>();
-        Towers rootNode = Towers.initState(numberOfDisks);
-        Towers end = Towers.endState(numberOfDisks);
-
-        towersStack.push(rootNode);
-        Set<Towers> visitedStates = Sets.newHashSet(rootNode);
-        List<Towers> totalPath = Lists.newArrayList(rootNode);
-
-        while (!towersStack.empty()) {
-            Towers towers = towersStack.peek();
-            Set<Towers> unvisitedChildNodes = towers.getPossibleSwitchStates().stream()
-                    .filter(adjacent -> !visitedStates.contains(adjacent))
-                    .collect(Collectors.toSet());
-            if (unvisitedChildNodes.isEmpty()) {
-                towersStack.pop();
-            } else {
-                for (Towers child : unvisitedChildNodes) {
-                    visitedStates.add(child);
-                    totalPath.add(child);
-                    towersStack.push(child);
-                }
-            }
-            if (unvisitedChildNodes.contains(end)) {
-                break;
-            }
-        }
-        return totalPath;
-    }
-
-    private static List<Towers> aStar(int numberOfDisks) {
-        Towers init = Towers.initState(numberOfDisks);
-        Towers end = Towers.endState(numberOfDisks);
-
-        Set<Towers> closedSet = Sets.newHashSet();
-        Set<Towers> openSet = Sets.newHashSet(init);
-        Map<Towers, Towers> cameFrom = Maps.newHashMap();
-
-        // For each node, the cost of getting from the start node to that node.
-        Map<Towers, Integer> gScore = Maps.newHashMap();
-        gScore.put(init, init.getGScore());
-
-        // For each node, the total cost of getting from the start node to the goal by passing by that node.
-        // That value is partly known, partly heuristic.
-        Map<Towers, Integer> fScore = Maps.newHashMap();
-        fScore.put(init, init.getGScore());
-
-        while (CollectionUtils.isNotEmpty(openSet)) {
-            @SuppressWarnings("OptionalGetWithoutIsPresent")
-            Towers current = openSet.stream().min(Towers.F_SCORE_COMPARATOR).get();
-            if (current.equals(end)) {
-                return reconstructPath(cameFrom, current);
-            }
-
-            openSet.remove(current);
-            closedSet.add(current);
-
-            for (Towers neighbor : current.getPossibleSwitchStates()) {
-                if (closedSet.contains(neighbor)) {
-                    continue;
-                }
-                int tentativeGScore = current.getGScore() + 1;
-                if (!openSet.contains(neighbor)) {
-                    openSet.add(neighbor);
-                } else if (tentativeGScore >= neighbor.getGScore()) {
-                    continue;
-                }
-                cameFrom.put(neighbor, current);
-                gScore.put(neighbor, tentativeGScore);
-                fScore.put(neighbor, neighbor.getFScore());
-            }
-        }
-        return Collections.emptyList(); // unreachable
-    }
-
-    private static List<Towers> reconstructPath(final Map<Towers, Towers> cameFrom, final Towers endState) {
-        Towers current = endState;
-        final List<Towers> totalPath = Lists.newArrayList(current);
-        while (cameFrom.containsKey(current)) {
-            current = cameFrom.get(current);
-            totalPath.add(current);
-        }
-        return Lists.reverse(totalPath);
-    }
+    private static final Options OPTIONS = new Options()
+            .addOption(new Option(DISKS, "disks", true, "Number of disks."))
+            .addOption(new Option(HELP, "help", false, "Print this message."));
 
     @SuppressWarnings("SimplifyStreamApiCallChains")
-    public static void main(String[] args) {
-        int numberOfDisks = 3;
-        log.error("Number of disks: {}", numberOfDisks);
-        List<Towers> dfsPath = iterativeDfs(numberOfDisks);
-        List<Towers> bfsPath = iterativeBfs(numberOfDisks);
-        List<Towers> aStarPath = aStar(numberOfDisks);
-        log.error("\n\n\nBFS solution ({} steps):", bfsPath.size());
-        bfsPath.stream().forEachOrdered(log::error);
-        log.error("\n\n\nDFS solution ({} steps):", dfsPath.size());
-        dfsPath.stream().forEachOrdered(log::error);
-        log.error("\n\n\nA* solution ({} steps):", aStarPath.size());
-        aStarPath.stream().forEachOrdered(log::error);
+    public static void main(String... args) throws Exception {
+        CommandLineParser parser = new DefaultParser();
+        CommandLine line = parser.parse(OPTIONS, args);
+
+        if (line.hasOption(HELP)) {
+            printHelpAndExit(OPTIONS);
+        }
+
+        String disksValue = line.getOptionValue(DISKS, "3");
+        int numberOfDisks = Integer.parseInt(disksValue);
+
+        log.info("Number of disks: {}", numberOfDisks);
+        List<Towers> bfsPath = Algorithms.iterativeBfs(numberOfDisks);
+        List<Towers> dfsPath = Algorithms.iterativeDfs(numberOfDisks);
+        List<Towers> aStarPath = Algorithms.aStar(numberOfDisks);
+
+        log.info("BFS solution ({} steps):", bfsPath.size());
+        log.info("DFS solution ({} steps):", dfsPath.size());
+        log.info("A* solution ({} steps):", aStarPath.size());
+
+        saveResultsToFile(bfsPath, getFile("bfs"), numberOfDisks);
+        saveResultsToFile(dfsPath, getFile("dfs"), numberOfDisks);
+        saveResultsToFile(aStarPath, getFile("aStar"), numberOfDisks);
+    }
+
+    @SneakyThrows
+    private static void saveResultsToFile(List<Towers> path, File file, int numberOfDisks) {
+        Writer writer = new FileWriter(file, false)
+                .append(String.format("Number of disks: %s", numberOfDisks))
+                .append(System.lineSeparator())
+                .append(String.format("Solution takes %s steps:", path.size()))
+                .append(System.lineSeparator())
+                .append(System.lineSeparator());
+
+        for (Towers step : path) {
+            writer.append(step.toString());
+            writer.append(System.lineSeparator());
+        }
+
+        writer.close();
+    }
+
+    private static File getFile(String name) {
+        return new File(BASE_FILE_PATH + name + ".txt");
+    }
+
+    private static void printHelpAndExit(Options options) {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp(Hanoi.class.getSimpleName(), options);
+        System.exit(0);
     }
 }

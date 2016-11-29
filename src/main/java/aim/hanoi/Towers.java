@@ -8,15 +8,20 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
 
-import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.Set;
 
 @Log4j2
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode(exclude = {"numberOfDisks"})
-@ToString(exclude = {"numberOfDisks"})
+@EqualsAndHashCode(exclude = { "numberOfDisks" })
+@ToString(exclude = { "numberOfDisks" })
 public class Towers {
+
+    private static final int WORST_TOWER_RATE = 2;
+
+    private static final int MIDDLE_TOWER_RATE = 1;
+
+    private static final int BEST_TOWER_RATE = 0;
 
     static Comparator<Towers> F_SCORE_COMPARATOR = Comparator.comparing(Towers::getFScore);
 
@@ -35,27 +40,29 @@ public class Towers {
 
     private final int numberOfDisks;
 
-    static Towers initState(int numberOfDisks){
+    static Towers initState(int numberOfDisks) {
         Towers towers = new Towers(numberOfDisks);
         towers.initState();
         return towers;
     }
 
-    static Towers endState(int numberOfDisks){
+    static Towers endState(int numberOfDisks) {
         Towers towers = new Towers(numberOfDisks);
         towers.endState();
         return towers;
     }
 
     private void initState() {
-        for (int i = numberOfDisks; i >= 1; i--) {
-            tower1.push(i);
-        }
+        putAllDisksOnTower(tower1);
     }
 
-    private void endState(){
+    private void endState() {
+        putAllDisksOnTower(tower3);
+    }
+
+    private void putAllDisksOnTower(Tower tower) {
         for (int i = numberOfDisks; i >= 1; i--) {
-            tower3.push(i);
+            tower.push(i);
         }
     }
 
@@ -71,22 +78,38 @@ public class Towers {
         return clone;
     }
 
-    int getFScore(){
-        BigInteger fScore = BigInteger.ZERO;
+    int getFScore() {
+        int tower1Value = tower1.stream()
+                .mapToInt(Integer::intValue)
+                .map(i -> i * WORST_TOWER_RATE)
+                .sum();
+        int tower2Value = tower2.stream()
+                .mapToInt(Integer::intValue)
+                .map(i -> i * MIDDLE_TOWER_RATE)
+                .sum();
+        int tower3Value = tower3.stream()
+                .mapToInt(Integer::intValue)
+                .map(i -> i * BEST_TOWER_RATE)
+                .sum();
 
-        tower1.forEach(disk -> fScore.add(BigInteger.valueOf(disk * 2)));
-        tower2.forEach(disk -> fScore.add(BigInteger.valueOf(disk)));
-
-        return fScore.intValue();
+        return tower1Value + tower2Value + tower3Value;
     }
 
-    int getGScore(){
-        BigInteger fScore = BigInteger.ZERO;
+    int getGScore() {
+        int tower1Value = tower1.stream()
+                .mapToInt(Integer::intValue)
+                .map(i -> i * BEST_TOWER_RATE)
+                .sum();
+        int tower2Value = tower2.stream()
+                .mapToInt(Integer::intValue)
+                .map(i -> i * MIDDLE_TOWER_RATE)
+                .sum();
+        int tower3Value = tower3.stream()
+                .mapToInt(Integer::intValue)
+                .map(i -> i * WORST_TOWER_RATE)
+                .sum();
 
-        tower2.forEach(disk -> fScore.add(BigInteger.valueOf(disk)));
-        tower3.forEach(disk -> fScore.add(BigInteger.valueOf(disk * 2)));
-
-        return fScore.intValue();
+        return tower1Value + tower2Value + tower3Value;
     }
 
     Set<Towers> getPossibleSwitchStates() {
