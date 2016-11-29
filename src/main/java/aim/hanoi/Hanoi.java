@@ -74,6 +74,7 @@ public class Hanoi {
     }
 
     private static File getFile(String name) {
+        new File(BASE_FILE_PATH).mkdirs();
         return new File(BASE_FILE_PATH + name + ".txt");
     }
 
