@@ -9,14 +9,15 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
+@SuppressWarnings("WeakerAccess")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Algorithms {
 
@@ -30,11 +31,7 @@ public class Algorithms {
         List<Towers> totalPath = Lists.newArrayList(rootNode);
 
         while (!queue.isEmpty()) {
-            Towers towers = queue.remove();
-            Set<Towers> unvisitedChildNodes = towers.getPossibleSwitchStates().stream()
-                    .filter(adjacent -> !visitedStates.contains(adjacent))
-                    .sequential()
-                    .collect(Collectors.toSet());
+            Set<Towers> unvisitedChildNodes = getUnvisitedChildNodes(queue.remove(), visitedStates);
             if (!unvisitedChildNodes.isEmpty()) {
                 for (Towers child : unvisitedChildNodes) {
                     visitedStates.add(child);
@@ -59,11 +56,7 @@ public class Algorithms {
         List<Towers> totalPath = Lists.newArrayList(rootNode);
 
         while (!towersStack.empty()) {
-            Towers towers = towersStack.peek();
-            Set<Towers> unvisitedChildNodes = towers.getPossibleSwitchStates().stream()
-                    .filter(adjacent -> !visitedStates.contains(adjacent))
-                    .sequential()
-                    .collect(Collectors.toSet());
+            Set<Towers> unvisitedChildNodes = getUnvisitedChildNodes(towersStack.peek(), visitedStates);
             if (unvisitedChildNodes.isEmpty()) {
                 towersStack.pop();
             } else {
@@ -78,6 +71,16 @@ public class Algorithms {
             }
         }
         return getFinalPath(end, totalPath);
+    }
+
+    private static Set<Towers> getUnvisitedChildNodes(Towers state, final Set<Towers> visited) {
+        Set<Towers> unvisited = new HashSet<>();
+        for (Towers adjacent : state.getPossibleSwitchStates()) {
+            if (!visited.contains(adjacent)) {
+                unvisited.add(adjacent);
+            }
+        }
+        return unvisited;
     }
 
     private static List<Towers> getFinalPath(final Towers end, final List<Towers> totalPath) {

@@ -13,8 +13,8 @@ import java.util.Set;
 
 @Log4j2
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@EqualsAndHashCode(exclude = { "numberOfDisks" })
-@ToString(exclude = { "numberOfDisks" })
+@EqualsAndHashCode
+@ToString
 public class Towers {
 
     private static final int WORST_TOWER_RATE = 2;
@@ -38,29 +38,19 @@ public class Towers {
     @Setter
     private Tower tower3 = new Tower();
 
-    private final int numberOfDisks;
-
     static Towers initState(int numberOfDisks) {
-        Towers towers = new Towers(numberOfDisks);
-        towers.initState();
+        Towers towers = new Towers();
+        putAllDisksOnTower(numberOfDisks, towers.tower1);
         return towers;
     }
 
     static Towers endState(int numberOfDisks) {
-        Towers towers = new Towers(numberOfDisks);
-        towers.endState();
+        Towers towers = new Towers();
+        putAllDisksOnTower(numberOfDisks, towers.tower3);
         return towers;
     }
 
-    private void initState() {
-        putAllDisksOnTower(tower1);
-    }
-
-    private void endState() {
-        putAllDisksOnTower(tower3);
-    }
-
-    private void putAllDisksOnTower(Tower tower) {
+    private static void putAllDisksOnTower(int numberOfDisks, Tower tower) {
         for (int i = numberOfDisks; i >= 1; i--) {
             tower.push(i);
         }
@@ -69,7 +59,7 @@ public class Towers {
     @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     protected Towers clone() throws CloneNotSupportedException {
-        Towers clone = new Towers(numberOfDisks);
+        Towers clone = new Towers();
 
         clone.setTower1(tower1.clone());
         clone.setTower2(tower2.clone());
@@ -78,36 +68,37 @@ public class Towers {
         return clone;
     }
 
+    /**
+     * In theory: the total cost of getting from the start node to the goal by passing by that node.
+     * In practise: the total cost of getting from that node to the goal.
+     */
     int getFScore() {
         int tower1Value = tower1.stream()
                 .mapToInt(Integer::intValue)
-                .map(i -> i * WORST_TOWER_RATE)
-                .sum();
+                .sum() * WORST_TOWER_RATE;
         int tower2Value = tower2.stream()
                 .mapToInt(Integer::intValue)
-                .map(i -> i * MIDDLE_TOWER_RATE)
-                .sum();
+                .sum() * MIDDLE_TOWER_RATE;
         int tower3Value = tower3.stream()
                 .mapToInt(Integer::intValue)
-                .map(i -> i * BEST_TOWER_RATE)
-                .sum();
+                .sum() * BEST_TOWER_RATE;
 
         return tower1Value + tower2Value + tower3Value;
     }
 
+    /**
+     * Cost of getting from the start node to that node.
+     */
     int getGScore() {
         int tower1Value = tower1.stream()
                 .mapToInt(Integer::intValue)
-                .map(i -> i * BEST_TOWER_RATE)
-                .sum();
+                .sum() * BEST_TOWER_RATE;
         int tower2Value = tower2.stream()
                 .mapToInt(Integer::intValue)
-                .map(i -> i * MIDDLE_TOWER_RATE)
-                .sum();
+                .sum() * MIDDLE_TOWER_RATE;
         int tower3Value = tower3.stream()
                 .mapToInt(Integer::intValue)
-                .map(i -> i * WORST_TOWER_RATE)
-                .sum();
+                .sum() * WORST_TOWER_RATE;
 
         return tower1Value + tower2Value + tower3Value;
     }
