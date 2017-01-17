@@ -12,6 +12,10 @@ public class KnapsackConfig {
     private final int maxTotalWeight;
     private final int numberOfIterations;
 
+    // knapsack
+    private final double initialTemperature = 10_000.0;
+    private final double coolingRate = 0.003;
+
     public int totalItemsValue() {
         return items.stream()
                 .mapToInt(Item::getValue)

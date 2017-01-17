@@ -21,6 +21,29 @@ public class Knapsack extends ArrayList<Item> {
         this(maxTotalWeight, Arrays.asList(items));
     }
 
+    @Override
+    public Knapsack clone() {
+        return new Knapsack(maxTotalWeight, this);
+    }
+
+    /**
+     * Packs elements until knapsack isn't overpacked.
+     */
+    public void initialState() {
+        forEach(item -> item.setInKnapsack(false));
+
+        for (final Item item : this) {
+            if (wouldOverpack(item)) {
+                break;
+            }
+            item.switchIsKnapsack();
+        }
+    }
+
+    private boolean wouldOverpack(Item item) {
+        return totalWeight() + item.getWeight() > maxTotalWeight;
+    }
+
     public boolean isOverpacked() {
         return totalWeight() > maxTotalWeight;
     }
@@ -39,10 +62,11 @@ public class Knapsack extends ArrayList<Item> {
                 .sum();
     }
 
-    public Knapsack getRandomValidNeighbour(int switchedItems) {
+    public Knapsack getRandomValidNeighbour() {
         Knapsack neighbour;
+        int switchedItems = RandomUtils.nextInt(2, size() / 2);
         do {
-            neighbour = new Knapsack(maxTotalWeight, toArray(new Item[size()]));
+            neighbour = new Knapsack(maxTotalWeight, toArray(new Item[ size() ]));
             getRandomIndexes(switchedItems, size())
                     .forEach(i -> get(i).switchIsKnapsack());
 
