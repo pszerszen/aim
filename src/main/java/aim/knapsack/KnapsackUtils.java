@@ -7,10 +7,9 @@ import lombok.SneakyThrows;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class KnapsackUtils {
@@ -20,12 +19,13 @@ public final class KnapsackUtils {
         Properties properties = new Properties();
         properties.load(Files.newInputStream(Paths.get(filepath)));
 
-        int numberItems = Integer.parseInt(properties.getProperty("items.number"));
-        List<Item> items = IntStream.rangeClosed(1, numberItems)
-                .mapToObj(i -> String.format("item%d", i))
-                .map(properties::getProperty)
-                .map(KnapsackUtils::toItem)
-                .collect(Collectors.toList());
+        List<Item> items = new ArrayList<>();
+        int i = 1;
+        String value;
+        while ((value = properties.getProperty(String.format("item%d", i))) != null) {
+            items.add(toItem(value));
+            i++;
+        }
 
         int numberOfIterations = Integer.parseInt(properties.getProperty("iterations.number"));
         int maxTotalWeight = Integer.parseInt(properties.getProperty("max.total.weight"));
@@ -37,11 +37,11 @@ public final class KnapsackUtils {
                 .build();
     }
 
-    public static boolean isValid(Knapsack knapsack){
+    private static boolean isValid(Knapsack knapsack) {
         return !(knapsack == null || knapsack.isOverpacked());
     }
 
-    public static boolean isValidNeighbour(Knapsack knapsack, Knapsack neighbour){
+    static boolean isValidNeighbour(Knapsack knapsack, Knapsack neighbour) {
         return isValid(neighbour) && !knapsack.equals(neighbour);
     }
 
