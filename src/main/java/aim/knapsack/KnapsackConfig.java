@@ -14,6 +14,7 @@ public class KnapsackConfig {
 
     // knapsack
     private final double initialTemperature = 10_000.0;
+    private final double minimalTemperature = 0.000_01;
     private final double coolingRate = 0.003;
 
     public int totalItemsValue() {
