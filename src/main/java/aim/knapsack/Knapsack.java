@@ -1,5 +1,6 @@
 package aim.knapsack;
 
+import lombok.Getter;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.util.ArrayList;
@@ -8,8 +9,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Knapsack extends ArrayList<Item> {
+public class Knapsack extends ArrayList<Item> implements Comparable {
 
+    @Getter
     private final int maxTotalWeight;
 
     public Knapsack(int maxTotalWeight, List<Item> items) {
@@ -75,11 +77,36 @@ public class Knapsack extends ArrayList<Item> {
         return neighbour;
     }
 
+    public static Knapsack empty(Knapsack knapsack){
+        Knapsack emptyKnapsack = knapsack.clone();
+        emptyKnapsack.forEach(item -> item.setInKnapsack(false));
+        return emptyKnapsack;
+    }
+
+    public static Knapsack recalculateChild(Knapsack child){
+        int weightSum = 0;
+        for(Item item : child){
+            if(item.isInKnapsack()){
+                if(weightSum + item.getWeight() > child.maxTotalWeight){
+                    item.setInKnapsack(false);
+                } else {
+                    weightSum += item.getWeight();
+                }
+            }
+        }
+        return child;
+    }
+
     private static Set<Integer> getRandomIndexes(int numberOftIndexes, int maxIndex) {
         Set<Integer> randoms = new HashSet<>(numberOftIndexes);
         do {
             randoms.add(RandomUtils.nextInt(0, maxIndex));
         } while (randoms.size() < numberOftIndexes);
         return randoms;
+    }
+
+    @Override
+    public int compareTo(final Object o) {
+        return Integer.valueOf(totalValue()).compareTo(((Knapsack) o).totalValue());
     }
 }
