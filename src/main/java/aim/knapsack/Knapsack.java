@@ -77,6 +77,14 @@ public class Knapsack extends ArrayList<Item> implements Comparable {
         return neighbour;
     }
 
+    public static Knapsack withInitialState(){
+        Knapsack knapsack = new Knapsack(
+                KnapsackConfig.getInstance().getMaxTotalWeight(),
+                KnapsackConfig.getInstance().getItems());
+        knapsack.initialState();
+        return knapsack;
+    }
+
     public static Knapsack empty(Knapsack knapsack){
         Knapsack emptyKnapsack = knapsack.clone();
         emptyKnapsack.forEach(item -> item.setInKnapsack(false));
