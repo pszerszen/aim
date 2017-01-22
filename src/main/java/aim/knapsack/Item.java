@@ -8,10 +8,21 @@ import lombok.Data;
 class Item {
 
     private int weight;
+
     private int value;
+
     private boolean inKnapsack;
 
-    void switchIsKnapsack(){
-        inKnapsack = !inKnapsack;
+    void switchIsKnapsack() {
+        setInKnapsack(!inKnapsack);
+    }
+
+    @Override
+    protected Item clone() {
+        return builder()
+                .weight(weight)
+                .value(value)
+                .inKnapsack(inKnapsack)
+                .build();
     }
 }

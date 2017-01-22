@@ -4,11 +4,16 @@ import org.apache.commons.lang3.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Knapsack extends ArrayList<Item> implements Comparable<Knapsack> {
 
     private Knapsack(List<Item> items) {
         items.forEach(this::add);
+    }
+
+    private Knapsack() {
+        super();
     }
 
     static Knapsack withInitialState() {
@@ -26,7 +31,9 @@ public class Knapsack extends ArrayList<Item> implements Comparable<Knapsack> {
 
     @Override
     public Knapsack clone() {
-        return (Knapsack) super.clone();
+        Knapsack clone = new Knapsack();
+        forEach(item -> clone.add(item.clone()));
+        return clone;
     }
 
     /**
@@ -51,7 +58,7 @@ public class Knapsack extends ArrayList<Item> implements Comparable<Knapsack> {
         return totalWeight() > KnapsackConfig.getInstance().getMaxTotalWeight();
     }
 
-    private int totalWeight() {
+    int totalWeight() {
         return stream()
                 .filter(Item::isInKnapsack)
                 .mapToInt(Item::getWeight)
@@ -67,15 +74,30 @@ public class Knapsack extends ArrayList<Item> implements Comparable<Knapsack> {
 
     Knapsack getRandomValidNeighbour() {
         Knapsack neighbour;
-        int switchedItems = RandomUtils.nextInt(2, size() / 2);
         do {
-            neighbour = clone();
-            KnapsackUtils.getRandomIndexes(switchedItems, size())
-                    .forEach(i -> get(i).switchIsKnapsack());
-
-        } while (KnapsackUtils.isValidNeighbour(this, neighbour));
-
+            neighbour = getRandomNeighbour();
+        } while (!KnapsackUtils.isValidNeighbour(this, neighbour));
         return neighbour;
+    }
+
+    private Knapsack getRandomNeighbour() {
+        Knapsack neighbour = clone();
+        int switchedItems = RandomUtils.nextInt(2, size() / 2);
+        for (int i : KnapsackUtils.getRandomIndexes(switchedItems, size())) {
+            neighbour.get(i).switchIsKnapsack();
+        }
+        return neighbour;
+    }
+
+    String resultToString() {
+        return stream()
+                .filter(Item::isInKnapsack)
+                .map(this::toString)
+                .collect(Collectors.joining(", ", "Knapsack=[", "]"));
+    }
+
+    private String toString(Item item) {
+        return String.format("Item(value=%s, weight=%s)", item.getValue(), item.getWeight());
     }
 
     @Override

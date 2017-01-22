@@ -19,8 +19,9 @@ final class KnapsackUtils {
     }
 
     static Knapsack eliminateOverload(Knapsack child) {
+        Knapsack fixed = child.clone();
         int weightSum = 0;
-        for (Item item : child) {
+        for (Item item : fixed) {
             if (item.isInKnapsack()) {
                 if (weightSum + item.getWeight() > KnapsackConfig.getInstance().getMaxTotalWeight()) {
                     item.setInKnapsack(false);
@@ -29,7 +30,7 @@ final class KnapsackUtils {
                 }
             }
         }
-        return child;
+        return fixed;
     }
 
     static Set<Integer> getRandomIndexes(int numberOftIndexes, int maxIndex) {

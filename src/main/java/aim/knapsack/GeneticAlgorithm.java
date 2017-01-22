@@ -36,7 +36,7 @@ class GeneticAlgorithm {
                 generateChildren(population, newPopulation);
             }
 
-            population = newPopulation;
+            population = new ArrayList<>(newPopulation);
             if (best.totalValue() > latPopulationBest) {
                 uselessGenerations = 0;
             } else {
@@ -86,12 +86,13 @@ class GeneticAlgorithm {
     }
 
     private Knapsack mutateChild(Knapsack child) {
-        for (Item item : child) {
+        Knapsack mutant = child.clone();
+        for (Item item : mutant) {
             if (Math.random() <= KnapsackConfig.getInstance().getMutationsProbability()) {
                 item.switchIsKnapsack();
             }
         }
-        return child;
+        return mutant;
     }
 
     private Knapsack chooseParent(List<Knapsack> population) {
