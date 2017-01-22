@@ -3,14 +3,11 @@ package aim.knapsack;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-public final class Algorithms {
-
-    private static final GeneticAlgorithm GENETIC_ALGORITHM = new GeneticAlgorithm();
+public class Algorithms {
 
     Knapsack simulatedAnnealing() {
         double temperature = KnapsackConfig.getInstance().getInitialTemperature();
-        Knapsack current = new Knapsack(KnapsackConfig.getInstance().getMaxTotalWeight(), KnapsackConfig.getInstance().getItems());
-        current.initialState();
+        Knapsack current = Knapsack.withInitialState();
         Knapsack best = current.clone();
         int averageValue = current.totalValue();
 
@@ -36,5 +33,9 @@ public final class Algorithms {
 
     private static double acceptanceProbability(int averageValue, int newValue, int currentValue, double temperature) {
         return ((currentValue - newValue) / averageValue) * temperature;
+    }
+
+    Knapsack geneticAlgorithm() {
+        return GeneticAlgorithm.getInstance().solve();
     }
 }

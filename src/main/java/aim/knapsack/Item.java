@@ -5,13 +5,13 @@ import lombok.Data;
 
 @Data
 @Builder
-public class Item {
+class Item {
 
     private int weight;
     private int value;
     private boolean inKnapsack;
 
-    public void switchIsKnapsack(){
+    void switchIsKnapsack(){
         inKnapsack = !inKnapsack;
     }
 }

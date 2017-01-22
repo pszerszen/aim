@@ -60,11 +60,10 @@ public class KnapsackConfig {
 
     // genetic
     private final int populationSize;
-    private final double mutationsProbability;
+    private final double mutationsProbability = 0.1;
     private final double recombinationProbability;
-    private final int termination;
-    private final SelectionType selectionType;
-    private final CrossingType crossingType;
+    private final SelectionType selectionType = SelectionType.SimpleTournament;
+    private final CrossingType crossingType = CrossingType.OnePoint;
 
     public int totalItemsValue() {
         return items.stream()

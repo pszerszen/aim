@@ -1,12 +1,10 @@
 package aim.knapsack;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.util.stream.IntStream;
 
-@Getter
 @RequiredArgsConstructor
 enum CrossingType {
     OnePoint((parentA, parentB) -> {
@@ -47,7 +45,7 @@ enum CrossingType {
 
     private final CrossingMethod method;
 
-    public Knapsack cross(Knapsack parent1, Knapsack parent2){
+    public Knapsack cross(Knapsack parent1, Knapsack parent2) {
         return method.cross(parent1, parent2);
     }
 
