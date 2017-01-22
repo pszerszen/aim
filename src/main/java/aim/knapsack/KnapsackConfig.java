@@ -1,44 +1,107 @@
 package aim.knapsack;
 
-import com.google.common.collect.ImmutableList;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.ToString;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 @Getter
-@Builder
+@ToString
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class KnapsackConfig {
 
-    @Getter
-    private static final KnapsackConfig instance = init(KnapsackConfig.class.getResource("knapsack.properties").getPath());
+    private static KnapsackConfig instance;
+
+    @Value("item")
+    private List<Item> items = new ArrayList<>();
+
+    @Value("max.total.weight")
+    private int maxTotalWeight;
+
+    @Value(("iterations.number"))
+    private int numberOfIterations;
+
+    // simulated annealing
+
+    @Value("initial.temperature")
+    private double initialTemperature;
+
+    @Value("minimal.temperature")
+    private double minimalTemperature;
+
+    @Value("cooling.rate")
+    private double coolingRate;
+
+    // genetic
+    @Value("population.size")
+    private int populationSize;
+
+    @Value("mutation.probability")
+    private double mutationsProbability;
+
+    @Value("recombination.probability")
+    private double recombinationProbability;
+
+    @Value("selection.type")
+    private SelectionType selectionType;
+
+    @Value("crossing.type")
+    private CrossingType crossingType;
+
+    public int totalItemsValue() {
+        return items.stream()
+                .mapToInt(Item::getValue)
+                .sum();
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static KnapsackConfig getInstance() {
+        if (instance == null) {
+            instance = init();
+        }
+        return instance;
+    }
 
     @SneakyThrows
-    private static KnapsackConfig init(String filepath) {
-        Properties properties = new Properties();
-        properties.load(Files.newInputStream(Paths.get(filepath)));
+    private static KnapsackConfig init() {
+        KnapsackConfig config = new KnapsackConfig();
 
-        List<Item> items = new ArrayList<>();
-        int i = 1;
-        String value;
-        while ((value = properties.getProperty(String.format("item%d", i))) != null) {
-            items.add(toItem(value));
-            i++;
+        final Properties properties = new Properties();
+        properties.load(KnapsackConfig.class.getResourceAsStream("knapsack.properties"));
+        for (Field field : KnapsackConfig.class.getDeclaredFields()) {
+            if (!field.isAnnotationPresent(Value.class)) {
+                continue;
+            }
+            field.setAccessible(true);
+            String propertyName = field.getAnnotation(Value.class).value();
+            String propertyValue = properties.getProperty(propertyName);
+            Class<?> type = field.getType();
+            if (int.class.equals(type)) {
+                field.setInt(config, Integer.parseInt(propertyValue));
+            } else if (double.class.equals(type)) {
+                field.setDouble(config, Double.parseDouble(propertyValue));
+            } else if (type.isEnum()) {
+                //noinspection unchecked
+                field.set(config, Enum.valueOf((Class<Enum>) type, propertyValue));
+            } else {
+                List<Item> items = new ArrayList<>();
+                int i = 1;
+                String value;
+                while ((value = properties.getProperty(String.format(propertyName + "%d", i))) != null) {
+                    items.add(toItem(value));
+                    i++;
+                }
+                field.set(config, items);
+            }
         }
 
-        int numberOfIterations = Integer.parseInt(properties.getProperty("iterations.number"));
-        int maxTotalWeight = Integer.parseInt(properties.getProperty("max.total.weight"));
-
-        return KnapsackConfig.builder()
-                .items(ImmutableList.copyOf(items))
-                .maxTotalWeight(maxTotalWeight)
-                .numberOfIterations(numberOfIterations)
-                .build();
+        return config;
     }
 
     private static Item toItem(String value) {
@@ -47,27 +110,5 @@ public class KnapsackConfig {
                 .value(Integer.parseInt(split[ 0 ]))
                 .weight(Integer.parseInt(split[ 1 ]))
                 .build();
-    }
-
-    private final ImmutableList<Item> items;
-    private final int maxTotalWeight;
-    private final int numberOfIterations;
-
-    // simulated annealing
-    private final double initialTemperature = 10_000.0;
-    private final double minimalTemperature = 0.000_01;
-    private final double coolingRate = 0.003;
-
-    // genetic
-    private final int populationSize;
-    private final double mutationsProbability = 0.1;
-    private final double recombinationProbability;
-    private final SelectionType selectionType = SelectionType.SimpleTournament;
-    private final CrossingType crossingType = CrossingType.OnePoint;
-
-    public int totalItemsValue() {
-        return items.stream()
-                .mapToInt(Item::getValue)
-                .sum();
     }
 }

@@ -38,4 +38,8 @@ public class Algorithms {
     Knapsack geneticAlgorithm() {
         return GeneticAlgorithm.getInstance().solve();
     }
+
+    public static void main(String... args) {
+        log.info(KnapsackConfig.getInstance());
+    }
 }
