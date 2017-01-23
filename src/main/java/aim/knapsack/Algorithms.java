@@ -57,5 +57,6 @@ public class Algorithms {
         log.info("Number of items in knapsack: {}", knapsack.stream().filter(Item::isInKnapsack).mapToInt(value -> 1).sum());
         log.info("Value of items in knapsack: {}", knapsack.totalValue());
         log.info("Weight of items in knapsack: {}", knapsack.totalWeight());
+        log.info("Chart data: {}", GeneticAlgorithm.getInstance().getChartData());
     }
 }

@@ -1,9 +1,11 @@
 package aim.knapsack;
 
 import lombok.AccessLevel;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,8 @@ class GeneticAlgorithm {
 
     private List<Double> roulette = new ArrayList<>();
 
+    private List<History> historyList = new ArrayList<>();
+
     private Knapsack best;
 
     Knapsack solve() {
@@ -27,8 +31,11 @@ class GeneticAlgorithm {
 
         best = initiator.clone();
         int uselessGenerations = 0;
+        int iteration = 0;
 
         while (uselessGenerations < KnapsackConfig.getInstance().getNumberOfIterations()) {
+            iteration++;
+            historyList.add(new History(iteration, best, population));
             List<Knapsack> newPopulation = new ArrayList<>();
             int latPopulationBest = best.totalValue();
 
@@ -95,8 +102,36 @@ class GeneticAlgorithm {
         return mutant;
     }
 
+    List<Triple<Integer, Integer, Double>> getChartData() {
+        return historyList.stream()
+                .map(History::asTriple)
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
     private Knapsack chooseParent(List<Knapsack> population) {
         return KnapsackConfig.getInstance().getSelectionType().select(population, roulette);
     }
 
+    @SuppressWarnings({ "MismatchedQueryAndUpdateOfCollection", "OptionalGetWithoutIsPresent" })
+    @Data
+    private class History implements Comparable<History> {
+        private final int iteration;
+
+        private final Knapsack best;
+
+        private final List<Knapsack> population;
+
+        Triple<Integer, Integer, Double> asTriple() {
+            double averageValue = population.stream()
+                    .mapToInt(Knapsack::totalValue)
+                    .average().getAsDouble();
+            return Triple.of(iteration, best.totalValue(), averageValue);
+        }
+
+        @Override
+        public int compareTo(final History o) {
+            return Integer.valueOf(iteration).compareTo(o.getIteration());
+        }
+    }
 }
