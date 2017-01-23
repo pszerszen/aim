@@ -27,6 +27,7 @@ public class Algorithms {
         log.info("Value of items in knapsack: {}", knapsack.totalValue());
         log.info("Weight of items in knapsack: {}", knapsack.totalWeight());
         log.info("Chart data: {}", History.generateChartData(SimulatedAnnealingAlgorithm.getInstance().getHistoryList()));
+        KnapsackUtils.writeCsv(SimulatedAnnealingAlgorithm.getInstance());
 
         log.info("\n\nGENETIC ALGORITHM:");
         knapsack = Algorithms.geneticAlgorithm();
@@ -35,5 +36,6 @@ public class Algorithms {
         log.info("Value of items in knapsack: {}", knapsack.totalValue());
         log.info("Weight of items in knapsack: {}", knapsack.totalWeight());
         log.info("Chart data: {}", History.generateChartData(GeneticAlgorithm.getInstance().getHistoryList()));
+        KnapsackUtils.writeCsv(GeneticAlgorithm.getInstance());
     }
 }

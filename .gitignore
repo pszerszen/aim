@@ -9,3 +9,6 @@ out
 
 target
 resources/aim/hanoi/
+
+geneticAlgorithm.csv
+simulatedAnnealingAlgorithm.csv

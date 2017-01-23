@@ -32,7 +32,7 @@ class GeneticAlgorithm extends AbstractAlgorithm {
 
         while (uselessGenerations < KnapsackConfig.getInstance().getNumberOfIterations()) {
             iteration++;
-            historyList.add(new History(iteration, best, population));
+            addToHistory(best, population);
             List<Knapsack> newPopulation = new ArrayList<>();
             int latPopulationBest = best.totalValue();
 
@@ -50,7 +50,13 @@ class GeneticAlgorithm extends AbstractAlgorithm {
             roulette.clear();
         }
 
+        finalValue = best;
         return best;
+    }
+
+    @Override
+    String getOutputFileName() {
+        return "geneticAlgorithm";
     }
 
     private List<Knapsack> generateFirstGeneration(Knapsack initiator) {

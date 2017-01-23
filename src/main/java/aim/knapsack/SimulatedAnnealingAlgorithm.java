@@ -31,11 +31,17 @@ public class SimulatedAnnealingAlgorithm extends AbstractAlgorithm {
                     }
                 }
                 i++;
-                historyList.add(new History(i, current));
+                addToHistory(current);
             }
             temperature *= KnapsackConfig.getInstance().getCoolingRate();
         }
+        finalValue = best;
         return best;
+    }
+
+    @Override
+    String getOutputFileName() {
+        return "simulatedAnnealingAlgorithm";
     }
 
     private static double acceptanceProbability(int averageValue, int newValue, int currentValue, double temperature) {
