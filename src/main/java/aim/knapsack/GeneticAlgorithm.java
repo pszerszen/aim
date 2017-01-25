@@ -4,7 +4,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.RandomUtils;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +18,7 @@ class GeneticAlgorithm extends AbstractAlgorithm {
 
     @Getter
     private static final GeneticAlgorithm instance = new GeneticAlgorithm();
+    private final SecureRandom random = new SecureRandom(RandomUtils.nextBytes(1024));
 
     private List<Double> roulette = new ArrayList<>();
 
@@ -71,7 +74,7 @@ class GeneticAlgorithm extends AbstractAlgorithm {
         Knapsack parentA = chooseParent(population);
         Knapsack parentB = chooseParent(population);
 
-        if (Math.random() <= KnapsackConfig.getInstance().getRecombinationProbability()) {
+        if (random.nextDouble() <= KnapsackConfig.getInstance().getRecombinationProbability()) {
             newPopulation.add(onChildPush(crossParents(parentA, parentB)));
             newPopulation.add(onChildPush(crossParents(parentB, parentA)));
         } else {
@@ -103,7 +106,7 @@ class GeneticAlgorithm extends AbstractAlgorithm {
     private Knapsack mutateChild(Knapsack child) {
         Knapsack mutant = child.clone();
         for (Item item : mutant) {
-            if (Math.random() <= KnapsackConfig.getInstance().getMutationsProbability()) {
+            if (random.nextDouble() <= KnapsackConfig.getInstance().getMutationsProbability()) {
                 item.switchIsKnapsack();
             }
         }

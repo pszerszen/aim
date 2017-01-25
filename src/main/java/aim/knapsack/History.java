@@ -29,12 +29,12 @@ class History implements Comparable<History> {
         this.population = population;
     }
 
-    Triple<Integer, Integer, Double> asTriple() {
+    Triple<Integer, Integer, Integer> asTriple() {
         double averageValue = population.stream()
                 .mapToInt(Knapsack::totalValue)
                 .average()
                 .orElse(0.0);
-        return Triple.of(iteration, best.totalValue(), averageValue);
+        return Triple.of(iteration, best.totalValue(), Double.valueOf(averageValue).intValue());
     }
 
     @Override
@@ -42,7 +42,7 @@ class History implements Comparable<History> {
         return Integer.valueOf(iteration).compareTo(o.getIteration());
     }
 
-    static List<Triple<Integer, Integer, Double>> generateChartData(List<History> historyList){
+    static List<Triple<Integer, Integer, Integer>> generateChartData(List<History> historyList){
         return historyList.stream()
                 .map(History::asTriple)
                 .sorted()

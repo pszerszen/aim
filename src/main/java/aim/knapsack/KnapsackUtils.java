@@ -4,9 +4,9 @@ import com.opencsv.CSVWriter;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.RandomUtils;
 
 import java.io.FileWriter;
+import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +14,8 @@ import java.util.stream.IntStream;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class KnapsackUtils {
+
+    private static SecureRandom random = new SecureRandom();
 
     private static boolean isValid(Knapsack knapsack) {
         return !(knapsack == null || knapsack.isOverpacked());
@@ -41,7 +43,7 @@ final class KnapsackUtils {
     static Set<Integer> getRandomIndexes(int numberOftIndexes, int maxIndex) {
         Set<Integer> randoms = new HashSet<>(numberOftIndexes);
         do {
-            randoms.add(RandomUtils.nextInt(0, maxIndex));
+            randoms.add(random.nextInt(maxIndex));
         } while (randoms.size() < numberOftIndexes);
         return randoms;
     }
@@ -63,7 +65,7 @@ final class KnapsackUtils {
             writer.writeNext(line("Iteration number", "best unit's value", "population average value"));
             algorithm.getHistoryList().stream()
                     .map(History::asTriple)
-                    .map(triple -> new Object[] { triple.getLeft(), triple.getMiddle(), String.valueOf(triple.getRight()).replace('.', ',') })
+                    .map(triple -> new Object[] { triple.getLeft(), triple.getMiddle(), triple.getRight() })
                     .map(KnapsackUtils::line)
                     .forEachOrdered(writer::writeNext);
             writer.writeNext(line("Final knapsack:"));
