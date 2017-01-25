@@ -63,7 +63,7 @@ final class KnapsackUtils {
             writer.writeNext(line("Iteration number", "best unit's value", "population average value"));
             algorithm.getHistoryList().stream()
                     .map(History::asTriple)
-                    .map(triple -> new Object[] { triple.getLeft(), triple.getMiddle(), triple.getRight() })
+                    .map(triple -> new Object[] { triple.getLeft(), triple.getMiddle(), String.valueOf(triple.getRight()).replace('.', ',') })
                     .map(KnapsackUtils::line)
                     .forEachOrdered(writer::writeNext);
             writer.writeNext(line("Final knapsack:"));

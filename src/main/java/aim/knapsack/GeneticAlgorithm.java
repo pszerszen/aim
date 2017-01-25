@@ -21,17 +21,17 @@ class GeneticAlgorithm extends AbstractAlgorithm {
 
     private Knapsack best;
 
+    private int uselessGenerations = 0;
+    private int betterGenerations = 0;
+
     @Override
     Knapsack solve() {
         Knapsack initiator = Knapsack.withInitialState();
         List<Knapsack> population = generateFirstGeneration(initiator);
 
         best = initiator.clone();
-        int uselessGenerations = 0;
-        int iteration = 0;
 
         while (uselessGenerations < KnapsackConfig.getInstance().getNumberOfIterations()) {
-            iteration++;
             addToHistory(best, population);
             List<Knapsack> newPopulation = new ArrayList<>();
             int latPopulationBest = best.totalValue();
@@ -43,6 +43,7 @@ class GeneticAlgorithm extends AbstractAlgorithm {
             population = new ArrayList<>(newPopulation);
             if (best.totalValue() > latPopulationBest) {
                 uselessGenerations = 0;
+                betterGenerations++;
             } else {
                 uselessGenerations++;
             }
@@ -89,7 +90,11 @@ class GeneticAlgorithm extends AbstractAlgorithm {
         child = KnapsackUtils.eliminateOverload(child);
 
         if (child.totalValue() > best.totalValue()) {
-            log.info("{} -> {}", best.totalValue(), child.totalValue());
+            log.info("Best value changed from {} to {} after {} useless generations and {} better generations.",
+                    best.totalValue(),
+                    child.totalValue(),
+                    uselessGenerations,
+                    betterGenerations);
             best = child.clone();
         }
         return child;

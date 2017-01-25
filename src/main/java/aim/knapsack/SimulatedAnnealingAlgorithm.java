@@ -27,6 +27,7 @@ public class SimulatedAnnealingAlgorithm extends AbstractAlgorithm {
                 if (mutant.totalValue() > current.totalValue() || acceptanceProbability > Math.random()) {
                     current = mutant.clone();
                     if (current.totalValue() > best.totalValue()) {
+                        log.info("Best value changed from {} to {} on {} iteration while temperature is {}.", best.totalValue(), current.totalValue(), i, temperature);
                         best = current.clone();
                     }
                 }
