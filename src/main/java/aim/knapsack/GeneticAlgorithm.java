@@ -35,7 +35,7 @@ class GeneticAlgorithm extends AbstractAlgorithm {
         best = initiator.clone();
 
         while (uselessGenerations < KnapsackConfig.getInstance().getNumberOfIterations()) {
-            addToHistory(best, population);
+            addToHistory(best.clone(), new ArrayList<>(population));
             List<Knapsack> newPopulation = new ArrayList<>();
             int latPopulationBest = best.totalValue();
 
@@ -106,7 +106,7 @@ class GeneticAlgorithm extends AbstractAlgorithm {
     private Knapsack mutateChild(Knapsack child) {
         Knapsack mutant = child.clone();
         for (Item item : mutant) {
-            if (random.nextDouble() <= KnapsackConfig.getInstance().getMutationsProbability()) {
+            if (random.nextDouble() < KnapsackConfig.getInstance().getMutationsProbability()) {
                 item.switchIsKnapsack();
             }
         }

@@ -36,7 +36,7 @@ public class SimulatedAnnealingAlgorithm extends AbstractAlgorithm {
                     }
                 }
                 i++;
-                addToHistory(current);
+                addToHistory(best.clone(), current.clone());
             }
             temperature *= KnapsackConfig.getInstance().getCoolingRate();
         }
