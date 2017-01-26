@@ -26,6 +26,7 @@ public class Algorithms {
         log.info("Number of items in knapsack: {}", knapsack.stream().filter(Item::isInKnapsack).mapToInt(value -> 1).sum());
         log.info("Value of items in knapsack: {}", knapsack.totalValue());
         log.info("Weight of items in knapsack: {}", knapsack.totalWeight());
+        log.info("Iterations: {}", SimulatedAnnealingAlgorithm.getInstance().getHistoryList().size());
         //log.info("Chart data: {}", History.generateChartData(SimulatedAnnealingAlgorithm.getInstance().getHistoryList()));
         KnapsackUtils.writeCsv(SimulatedAnnealingAlgorithm.getInstance());
 
@@ -35,6 +36,7 @@ public class Algorithms {
         log.info("Number of items in knapsack: {}", knapsack.stream().filter(Item::isInKnapsack).mapToInt(value -> 1).sum());
         log.info("Value of items in knapsack: {}", knapsack.totalValue());
         log.info("Weight of items in knapsack: {}", knapsack.totalWeight());
+        log.info("Iterations: {}", GeneticAlgorithm.getInstance().getHistoryList().size());
         //log.info("Chart data: {}", History.generateChartData(GeneticAlgorithm.getInstance().getHistoryList()));
         KnapsackUtils.writeCsv(GeneticAlgorithm.getInstance());
     }
